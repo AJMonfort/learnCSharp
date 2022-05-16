@@ -4,12 +4,16 @@ using learnCSharp;
 using learnCSharp.TodoRepository;
 using System.Threading.Tasks;
 
+//var temp = new FileTodoRepository();
+//var tempList = await temp.Read();
+
+//await temp.Write(tempList);
 
 Console.WriteLine("Enter current user: ");
 var curOwner = Console.ReadLine();
-var basic = new Todo { descript = "notset", owner = curOwner };
-ITodoRepository todoRepository = new InMemoryTodoRepositroy();
-todoRepository.NewTodo(basic);
+//var basic = new Todo { descript = "notset", owner = curOwner };
+ITodoRepository todoRepository = new FileTodoRepository();
+//todoRepository.NewTodo(basic);
 bool contLoop = true;
 Console.WriteLine("Enter help for command list.");
 while (contLoop)

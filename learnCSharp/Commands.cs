@@ -116,19 +116,27 @@ namespace learnCSharp
                     {
                         temp.isDone = true;
                     }
+                    else
+                    {
+                        temp.isDone = false;
+                    }
                 }
             }
             else
             {
                 Console.WriteLine("ENTER ID NUMBER OF TASK");
                 String secondaryInput = Console.ReadLine();
+                temp = await todoRepository.GetTodo(int.Parse(secondaryInput));
+                Console.WriteLine("ENTER STATUS(true or false):");
+                secondaryInput = Console.ReadLine();
                 if (secondaryInput.Equals("true") || secondaryInput.Equals("True") || secondaryInput.Equals("t") || secondaryInput.Equals("T"))
                 {
                     temp.isDone = true;
                 }
-                    temp = await todoRepository.GetTodo(int.Parse(secondaryInput));
-                Console.WriteLine("ENTER STATUS(true or false):");
-                temp.descript = Console.ReadLine();
+                else
+                {
+                    temp.isDone = false;
+                }
             }
             return temp;
         }
