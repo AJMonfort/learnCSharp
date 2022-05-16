@@ -1,14 +1,15 @@
 ﻿// See https://aka.ms/new-console-template for more information
 
 using learnCSharp;
+using learnCSharp.TodoRepository;
 using System.Threading.Tasks;
 
 
 Console.WriteLine("Enter current user: ");
 var curOwner = Console.ReadLine();
 var basic = new Todo { descript = "notset", owner = curOwner };
-List<Todo> todoList = new List<Todo>();
-todoList.Add(basic);
+ITodoRepository todoRepository = new InMemoryTodoRepositroy();
+todoRepository.NewTodo(basic);
 bool contLoop = true;
 Console.WriteLine("Enter help for command list.");
 while (contLoop)
@@ -27,25 +28,25 @@ while (contLoop)
                 Commands.ListAllCommands();
                 break;
             case "list":
-                Commands.PrintAllTodos(todoList);
+                Commands.PrintAllTodos(todoRepository);
                 break;
             case "remove":
-                Commands.RemoveTodo(todoList, parsedInput);
+                Commands.RemoveTodo(todoRepository, parsedInput);
                 break;
             case "owner":
                 curOwner = Commands.ChangeUser(parsedInput);
                 break;
             case "new":
-                todoList.Add(Commands.CreateTask(parsedInput, curOwner));
+                await todoRepository.NewTodo(Commands.CreateTask(parsedInput, curOwner));
                 break;
             case "task":
-                todoList = Commands.ChangeTask(todoList, parsedInput);
+                await todoRepository.UpdateTodo(await Commands.ChangeTask(todoRepository, parsedInput));
                 break;
             case "status":
-                todoList = Commands.UpdateStatus(todoList, parsedInput);
+                await todoRepository.UpdateTodo(await Commands.UpdateStatus(todoRepository, parsedInput));
                 break;
             case "print":
-                Commands.PrintSpecific(todoList, parsedInput);
+                Commands.PrintSpecific(todoRepository, parsedInput);
                 break;
             default:
                 Console.WriteLine("not a command.");

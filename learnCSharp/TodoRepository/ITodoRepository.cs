@@ -9,8 +9,9 @@ namespace learnCSharp.TodoRepository
     public interface ITodoRepository
     {
         Task<Todo> NewTodo(Todo todo);
-        Task DeleteTodo(Todo todo);
+        Task DeleteTodo(int ID);
         Task<Todo> GetTodo(int ID);
+        Task<List<Todo>> GetAll();
         Task UpdateTodo(Todo todo);
     }
 }

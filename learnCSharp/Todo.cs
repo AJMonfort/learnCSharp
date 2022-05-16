@@ -15,8 +15,8 @@ namespace learnCSharp
 
         public void ToString()
         {
-            String getCompletionStatus = isDone ? (owner +"'s " + ID + " task " + descript + " has been completed") : (owner + 
-                "'s " + ID + " task " + descript + " has NOT been completed.");
+            String getCompletionStatus = isDone ? (owner + "'s task ID: " +ID+" "+descript +" has been completed") : (owner +
+                "'s task ID: " + ID + " " + descript + " has NOT been completed.");
             Console.WriteLine(getCompletionStatus);
         }
 

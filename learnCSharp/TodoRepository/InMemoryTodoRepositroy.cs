@@ -11,9 +11,17 @@ namespace learnCSharp.TodoRepository
         private int _nextID = 0;
         private Dictionary<int, Todo> _todoDictionary = new Dictionary<int, Todo>();
 
-        public async Task DeleteTodo(Todo todo)
+        public async Task DeleteTodo(int ID)
         {
-            _todoDictionary.Remove(todo.ID);
+            var succeeded = _todoDictionary.TryGetValue(ID, out var todo);
+            if(succeeded)
+            {
+                _todoDictionary.Remove(ID);
+            }
+            else
+            {
+                Console.WriteLine("Not Found.");
+            }
         }
 
         public async Task<Todo> GetTodo(int ID)
@@ -29,6 +37,11 @@ namespace learnCSharp.TodoRepository
             }
         }
 
+        public async Task<List<Todo>> GetAll()
+        {
+            return _todoDictionary.Values.ToList();
+        }
+
         public async Task<Todo> NewTodo(Todo todo)
         {
             todo.ID = _nextID++;
@@ -42,6 +55,10 @@ namespace learnCSharp.TodoRepository
             if(succeeded)
             {
                 _todoDictionary[todo.ID] = todo;
+            }
+            else
+            {
+                Console.WriteLine("Not Found.");
             }
         }
     }
