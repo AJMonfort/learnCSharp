@@ -13,11 +13,11 @@ namespace learnCSharp
         public bool isDone { get; set; }
         public int ID { get; set; }
 
-        public void ToString()
+        public String ToString()
         {
             String getCompletionStatus = isDone ? (owner + "'s task ID: " +ID+" "+descript +" has been completed") : (owner +
                 "'s task ID: " + ID + " " + descript + " has NOT been completed.");
-            Console.WriteLine(getCompletionStatus);
+            return getCompletionStatus;
         }
 
     }

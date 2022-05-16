@@ -26,7 +26,7 @@ namespace learnCSharp
         {
             foreach (Todo a in await todoRepository.GetAll())
             {
-                a.ToString();
+                Console.WriteLine(a.ToString());
             }
         }
 
@@ -142,17 +142,17 @@ namespace learnCSharp
         }
 
 
-        public static void PrintSpecific(ITodoRepository todoRepository, String[] input)
+        public static async Task PrintSpecific(ITodoRepository todoRepository, String[] input)
         {
             if (input.Length > 1)
             {
-                todoRepository.GetTodo(int.Parse(input[1])).ToString();
+                Console.WriteLine((await todoRepository.GetTodo(int.Parse(input[1]))).ToString());
             }
             else
             {
                 Console.WriteLine("ENTER ID NUMBER OF TASK");
                 String secondaryInput = Console.ReadLine();
-                todoRepository.GetTodo(int.Parse(secondaryInput)).ToString();
+                Console.WriteLine((await todoRepository.GetTodo(int.Parse(secondaryInput))).ToString());
             }
         }
 

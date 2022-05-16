@@ -50,7 +50,7 @@ while (contLoop)
                 await todoRepository.UpdateTodo(await Commands.UpdateStatus(todoRepository, parsedInput));
                 break;
             case "print":
-                Commands.PrintSpecific(todoRepository, parsedInput);
+                await Commands.PrintSpecific(todoRepository, parsedInput);
                 break;
             default:
                 Console.WriteLine("not a command.");
