@@ -7,7 +7,6 @@ using System.Threading.Tasks;
 Console.WriteLine("Enter current user: ");
 var curOwner = Console.ReadLine();
 var basic = new Todo { descript = "notset", owner = curOwner };
-Todo newTask;
 List<Todo> todoList = new List<Todo>();
 todoList.Add(basic);
 bool contLoop = true;
