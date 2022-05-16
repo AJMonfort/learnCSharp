@@ -10,7 +10,7 @@ namespace learnCSharp.TodoRepository
     {
         Task<Todo> NewTodo(Todo todo);
         Task DeleteTodo(Todo todo);
-        Task<Todo> GetTodo(Todo todo);
+        Task<Todo> GetTodo(int ID);
         Task UpdateTodo(Todo todo);
     }
 }

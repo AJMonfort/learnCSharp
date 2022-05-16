@@ -8,11 +8,10 @@ namespace learnCSharp
 {
     public class Todo
     {
-        private static int nextID = 0;
         public String owner { get; set; }
         public String descript { get; set; }
         public bool isDone { get; set; }
-        public int ID { get; private set; } = nextID++;
+        public int ID { get; set; }
 
         public void ToString()
         {
