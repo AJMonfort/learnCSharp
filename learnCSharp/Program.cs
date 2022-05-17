@@ -4,16 +4,10 @@ using learnCSharp;
 using learnCSharp.TodoRepository;
 using System.Threading.Tasks;
 
-//var temp = new FileTodoRepository();
-//var tempList = await temp.Read();
-
-//await temp.Write(tempList);
 
 Console.WriteLine("Enter current user: ");
 var curOwner = Console.ReadLine();
-//var basic = new Todo { descript = "notset", owner = curOwner };
 ITodoRepository todoRepository = new FileTodoRepository();
-//todoRepository.NewTodo(basic);
 bool contLoop = true;
 Console.WriteLine("Enter help for command list.");
 while (contLoop)
@@ -63,7 +57,7 @@ while (contLoop)
     }
     catch (FormatException e)
     {
-        Console.WriteLine("Sorry, but I need an integer (in the correct bounds please).");
+        Console.WriteLine("Sorry, but the input did not match");
     }
     catch (Exception e)
     {
