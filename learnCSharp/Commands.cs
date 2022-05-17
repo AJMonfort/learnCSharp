@@ -1,4 +1,5 @@
-﻿using System;
+﻿using learnCSharp.TodoRepository;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -11,68 +12,38 @@ namespace learnCSharp
         
         public static void ListAllCommands()
         {
-            Console.WriteLine("new: create a new todo task.(can enter in order: \'new\' Description");
-            Console.WriteLine("task: enter task description. (can enter in order: \'task\' OldDescription,NewDescription");
-            Console.WriteLine("status: Set isDone (true or false). (can enter in order: \'status\' Description,NewStatus");
-            Console.WriteLine("print: print selected task description, status, and ID. (can enter as: \'print\' Description");
-            Console.WriteLine("remove: remove chosen task. (can enter as: \'remove\' Description");
+            Console.WriteLine("new: create a new todo task.(can enter in order: \'new\' description");
+            Console.WriteLine("task: enter task description. (can enter in order: \'task\' idNum,NewDescription");
+            Console.WriteLine("status: Set isDone (true or false). (can enter in order: \'status\' idNum,NewStatus");
+            Console.WriteLine("print: print selected task description, status, and ID. (can enter as: \'print\' idNum");
+            Console.WriteLine("remove: remove chosen task. (can enter as: \'remove\' idNum");
             Console.WriteLine("list: print all tasks.\nowner: change current user. (can enter as \'owner\' User" +
                 "\nexit: exit loop.");
         }
 
         
-        public static void PrintAllTodos(List<Todo> list)
+        public async static void PrintAllTodos(ITodoRepository todoRepository)
         {
-            foreach (Todo a in list)
+            foreach (Todo a in await todoRepository.GetAll())
             {
-                a.ToString();
+                Console.WriteLine(a.ToString());
             }
         }
 
         
-        public static void RemoveTodo(List<Todo> list, String[] input)
+        public async static void RemoveTodo(ITodoRepository todoRepository, String[] input)
         {
             var listIndex = -1;
             var indexFound = false;
             if (input.Length > 1)
             {
-                foreach (Todo a in list)
-                {
-                    if (a.descript.Equals(input[1]))
-                    {
-                        listIndex = list.IndexOf(a);
-                        indexFound = true; break;
-                    }
-                }
-                if (indexFound)
-                {
-                    list.Remove(list[listIndex]);
-                }
-                else
-                {
-                    Console.WriteLine("Task with input description not found.");
-                }
+                await todoRepository.DeleteTodo(int.Parse(input[1]));
             }
             else
             {
-                Console.WriteLine("ENTER CURRENT DESCRIPTION OF TASK");
+                Console.WriteLine("ENTER ID NUMBER OF TASK");
                 String secondaryInput = Console.ReadLine();
-                foreach (Todo a in list)
-                {
-                    if (a.descript.Equals(secondaryInput))
-                    {
-                        listIndex = list.IndexOf(a);
-                        indexFound = true; break;
-                    }
-                }
-                if (indexFound)
-                {
-                    list.Remove(list[listIndex]);
-                }
-                else
-                {
-                    Console.WriteLine("Task with input description not found.");
-                }
+                await todoRepository.DeleteTodo(int.Parse(secondaryInput));
             }
         }
 
@@ -108,177 +79,66 @@ namespace learnCSharp
         }
 
 
-        public static List<Todo> ChangeTask(List<Todo> list, String[] input)
+        public async static Task<Todo> ChangeTask(ITodoRepository todoRepository, String[] input)
         {
-            var listIndex = -1;
-            var indexFound = false;
+            Todo newTodo = new Todo();
             if (input.Length > 1)
             {
                 String[] doubleParseIn = input[1].Split(',');
                 if (doubleParseIn.Length > 1)
                 {
-                    foreach (Todo a in list)
-                    {
-                        if (a.descript.Equals(doubleParseIn[0]))
-                        {
-                            listIndex = list.IndexOf(a);
-                            indexFound = true; break;
-                        }
-                    }
-                    if (indexFound)
-                    {
-                        if (doubleParseIn.Length > 1)
-                        {
-                            list[listIndex].descript = doubleParseIn[1];
-                        }
-                        else
-                        {
-                            Console.WriteLine("ENTER NEW DESCRIPTION");
-                            list[listIndex].descript = Console.ReadLine();
-                        }
-                    }
-                    else
-                    {
-                        Console.WriteLine("Task with input description not found.");
-                    }
+                    newTodo = await todoRepository.GetTodo(int.Parse(doubleParseIn[0]));
+                    newTodo.descript = doubleParseIn[1];
                 }
             }
             else
             {
-                Console.WriteLine("ENTER CURRENT DESCRIPTION OF TASK");
+                Console.WriteLine("ENTER TASK ID NUMBER:");
                 String secondaryInput = Console.ReadLine();
-                foreach (Todo a in list)
-                {
-                    if (a.descript.Equals(secondaryInput))
-                    {
-                        listIndex = list.IndexOf(a);
-                        indexFound = true; break;
-                    }
-                }
-                if (indexFound)
-                {
-                    Console.WriteLine("ENTER NEW DESCRIPTION");
-                    list[listIndex].descript = Console.ReadLine();
-                }
-                else
-                {
-                    Console.WriteLine("Task with input description not found.");
-                }
+                newTodo = await todoRepository.GetTodo(int.Parse(secondaryInput));
+                Console.WriteLine("ENTER NEW DESCRIPTION:");
+                newTodo.descript = Console.ReadLine();
             }
-            return list;
+            return newTodo;
         }
+        
 
-
-        public static List<Todo> UpdateStatus(List<Todo> list, String[] input)
+        public async static Task<Todo> UpdateStatus(ITodoRepository todoRepository, String[] input)
         {
-            var listIndex = -1;
-            var indexFound = false;
+            Todo newTodo = new Todo();
             if (input.Length > 1)
             {
                 String[] doubleParseIn = input[1].Split(',');
                 if (doubleParseIn.Length > 1)
                 {
-                    foreach (Todo a in list)
-                    {
-                        if (a.descript.Equals(doubleParseIn[0]))
-                        {
-                            listIndex = list.IndexOf(a);
-                            indexFound = true; break;
-                        }
-                    }
-                    if (indexFound)
-                    {
-                        if (doubleParseIn[1].Equals("true"))
-                        {
-                            list[listIndex].isDone = true;
-                        }
-                        else { list[listIndex].isDone = false; }
-                    }
-                    else
-                    {
-                        Console.WriteLine("Task with input description not found.");
-                    }
+                    newTodo = await todoRepository.GetTodo(int.Parse(doubleParseIn[0]));
+                    newTodo.isDone = bool.Parse(doubleParseIn[1]);
                 }
             }
             else
             {
-                Console.WriteLine("ENTER CURRENT DESCRIPTION OF TASK");
+                Console.WriteLine("ENTER ID NUMBER OF TASK");
                 String secondaryInput = Console.ReadLine();
-                foreach (Todo a in list)
-                {
-                    if (a.descript.Equals(secondaryInput))
-                    {
-                        listIndex = list.IndexOf(a);
-                        indexFound = true; break;
-                    }
-                }
-                if (indexFound)
-                {
-                    Console.WriteLine("\nENTER STATUS(true or false): ");
-                    secondaryInput = Console.ReadLine();
-                    if (secondaryInput.Equals("true"))
-                    {
-                        list[listIndex].isDone = true;
-                        Console.WriteLine("Status set to true.");
-                    }
-                    else
-                    {
-                        Console.WriteLine("Status set to false.");
-                        list[listIndex].isDone = false;
-                    }
-                }
-                else
-                {
-                    Console.WriteLine("Task with input description not found.");
-                }
+                newTodo = await todoRepository.GetTodo(int.Parse(secondaryInput));
+                Console.WriteLine("ENTER STATUS(true or false):");
+                secondaryInput = Console.ReadLine();
+                newTodo.isDone = bool.Parse(secondaryInput);
             }
-            return list;
+            return newTodo;
         }
 
 
-        public static void PrintSpecific(List<Todo> list, String[] input)
+        public static async Task PrintSpecific(ITodoRepository todoRepository, String[] input)
         {
-            var listIndex = -1;
-            var indexFound = false;
-            if (input.Length >= 2)
+            if (input.Length > 1)
             {
-                foreach (Todo a in list)
-                {
-                    if (a.descript.Equals(input[1]))
-                    {
-                        listIndex = list.IndexOf(a);
-                        indexFound = true; break;
-                    }
-                }
-                if (indexFound)
-                {
-                    list[listIndex].ToString();
-                }
-                else
-                {
-                    Console.WriteLine("Task with input description not found.");
-                }
+                Console.WriteLine((await todoRepository.GetTodo(int.Parse(input[1]))).ToString());
             }
             else
             {
-                Console.WriteLine("ENTER CURRENT DESCRIPTION OF TASK");
+                Console.WriteLine("ENTER ID NUMBER OF TASK");
                 String secondaryInput = Console.ReadLine();
-                foreach (Todo a in list)
-                {
-                    if (a.descript.Equals(secondaryInput))
-                    {
-                        listIndex = list.IndexOf(a);
-                        indexFound = true; break;
-                    }
-                }
-                if (indexFound)
-                {
-                    list[listIndex].ToString();
-                }
-                else
-                {
-                    Console.WriteLine("Task with input description not found.");
-                }
+                Console.WriteLine((await todoRepository.GetTodo(int.Parse(secondaryInput))).ToString());
             }
         }
 
