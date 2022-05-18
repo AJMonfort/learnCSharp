@@ -1,4 +1,5 @@
-﻿using System;
+﻿using learnCSharp.Models;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -13,5 +14,6 @@ namespace learnCSharp.TodoRepository
         Task<Todo> GetTodo(int ID);
         Task<List<Todo>> GetAll();
         Task UpdateTodo(Todo todo);
+        Task Initialize();
     }
 }

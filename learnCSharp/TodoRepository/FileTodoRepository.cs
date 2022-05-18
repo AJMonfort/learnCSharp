@@ -1,4 +1,5 @@
-﻿using System;
+﻿using learnCSharp.Models;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -25,9 +26,10 @@ namespace learnCSharp.TodoRepository
                 return new Todo 
                 { 
                     ID = int.Parse(splitLine[0]), 
-                    owner = splitLine[1], 
-                    descript = splitLine[2], 
-                    isDone = bool.Parse(splitLine[3])  
+                    UserID = int.Parse(splitLine[1]),
+                    //owner = splitLine[1], 
+                    Description = splitLine[2], 
+                    Completed = bool.Parse(splitLine[3])  
                 };
             }).ToList();
         }
@@ -36,11 +38,16 @@ namespace learnCSharp.TodoRepository
         {
             var lines = todos.Select(line =>
             {
-                var temp = $"{line.ID},{line.owner},{line.descript},{line.isDone}";
+                var temp = $"{line.ID},{line.UserID},{line.Description},{line.Completed}";
                 return temp;
             });
             lines = lines.Prepend(nextID.ToString());
             await File.WriteAllLinesAsync(fileName, lines);
+        }
+
+        public async Task Initialize()
+        {
+            
         }
 
         public async Task DeleteTodo(int ID)
@@ -76,9 +83,9 @@ namespace learnCSharp.TodoRepository
             //throw new NotImplementedException();
             List<Todo> todos = await Read();
             var foundTodo = todos.FirstOrDefault(t => t.ID == todo.ID);
-            foundTodo.isDone = todo.isDone;
-            foundTodo.owner = todo.owner;
-            foundTodo.descript = todo.descript;
+            foundTodo.Completed = todo.Completed;
+            foundTodo.UserID = todo.UserID;
+            foundTodo.Description = todo.Description;
             await Write(todos);
         }
     }

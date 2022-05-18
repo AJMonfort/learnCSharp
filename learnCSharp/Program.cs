@@ -1,13 +1,35 @@
 ﻿// See https://aka.ms/new-console-template for more information
 
 using learnCSharp;
+using learnCSharp.Models;
 using learnCSharp.TodoRepository;
+using learnCSharp.UserRepository;
 using System.Threading.Tasks;
 
 
+ITodoRepository todoRepository = new SQLiteTodoRepository();
+IUserRepository userRepository = new SQLiteUserRepository();
+await todoRepository.Initialize();
+await userRepository.Initialize();
 Console.WriteLine("Enter current user: ");
-var curOwner = Console.ReadLine();
-ITodoRepository todoRepository = new FileTodoRepository();
+var name = Console.ReadLine();
+String[] startUser = { "user", name};
+User curUser = await Commands.ChangeUser(startUser, userRepository);
+//User curUser = await userRepository.GetUserByName(name);
+//if (curUser != null)
+//{
+//    Console.WriteLine("Enter user password: ");
+//    curUser.Password = Console.ReadLine();
+//}
+//else
+//{
+//    curUser = new User() { Name = name };
+//    Console.WriteLine("Enter user password: ");
+//    curUser.Password = Console.ReadLine();
+//}
+
+//await userRepository.UpdateUser(curUser);
+
 bool contLoop = true;
 Console.WriteLine("Enter help for command list.");
 while (contLoop)
@@ -26,16 +48,16 @@ while (contLoop)
                 Commands.ListAllCommands();
                 break;
             case "list":
-                Commands.PrintAllTodos(todoRepository);
+                await Commands.PrintAllTodos(todoRepository, userRepository);
                 break;
             case "remove":
-                Commands.RemoveTodo(todoRepository, parsedInput);
+                await Commands.RemoveTodo(todoRepository, parsedInput);
                 break;
-            case "owner":
-                curOwner = Commands.ChangeUser(parsedInput);
+            case "user":
+                curUser = await Commands.ChangeUser(parsedInput, userRepository);
                 break;
             case "new":
-                await todoRepository.NewTodo(Commands.CreateTask(parsedInput, curOwner));
+                await todoRepository.NewTodo(Commands.CreateTask(parsedInput, curUser));
                 break;
             case "task":
                 await todoRepository.UpdateTodo(await Commands.ChangeTask(todoRepository, parsedInput));
@@ -44,7 +66,10 @@ while (contLoop)
                 await todoRepository.UpdateTodo(await Commands.UpdateStatus(todoRepository, parsedInput));
                 break;
             case "print":
-                await Commands.PrintSpecific(todoRepository, parsedInput);
+                await Commands.PrintSpecific(todoRepository, parsedInput, userRepository);
+                break;
+            case "delete":
+                await Commands.DeleteUser(userRepository, parsedInput);
                 break;
             default:
                 Console.WriteLine("not a command.");
