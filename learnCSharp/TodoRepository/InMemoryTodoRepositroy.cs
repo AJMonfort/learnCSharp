@@ -1,4 +1,5 @@
-﻿using System;
+﻿using learnCSharp.Models;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -10,6 +11,11 @@ namespace learnCSharp.TodoRepository
     {
         private int _nextID = 0;
         private Dictionary<int, Todo> _todoDictionary = new Dictionary<int, Todo>();
+
+        public async Task Initialize()
+        {
+            
+        }
 
         public async Task DeleteTodo(int ID)
         {
