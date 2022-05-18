@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace learnCSharp.TodoRepository
 {
-    internal class FileTodoRepository : ITodoRepository
+    public class FileTodoRepository : ITodoRepository
     {
         String fileName = "savefile.csv";
         int nextID;
