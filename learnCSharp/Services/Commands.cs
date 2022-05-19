@@ -7,12 +7,22 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace learnCSharp
+namespace learnCSharp.Services
 {
-    public static class Commands
+    public class Commands
     {
-        
-        public static void ListAllCommands()
+        private ITodoRepository _todoRepository;
+        private IUserRepository _userRepository;
+        private CurrentUserProvider _currentUserProvider;
+
+        public Commands(ITodoRepository todoRepository, IUserRepository userRepository, CurrentUserProvider currentUser)
+        {
+            _todoRepository = todoRepository;
+            _userRepository = userRepository;
+            _currentUserProvider = currentUser;
+        }
+
+        public void ListAllCommands()
         {
             Console.WriteLine("new: create a new todo task.(can enter in order: \'new\' description");
             Console.WriteLine("delete: remove chosen user. (can enter in order: \'delete\' User");
@@ -25,11 +35,11 @@ namespace learnCSharp
         }
 
         
-        public async static Task PrintAllTodos(ITodoRepository todoRepository, IUserRepository userRepository)
+        public async Task PrintAllTodos()
         {
-            var allUsers = await userRepository.GetAllUsers();
+            var allUsers = await _userRepository.GetAllUsers();
             var userLookUp = allUsers.ToDictionary(user => user.ID, user => user.Name);
-            foreach (Todo todo in await todoRepository.GetAll())
+            foreach (Todo todo in await _todoRepository.GetAll())
             {
                 PrintToConsole(todo,userLookUp[todo.UserID]);
             }
@@ -37,17 +47,17 @@ namespace learnCSharp
         }
 
 
-        public async static Task DeleteUser(IUserRepository userRepository, String[] input)
+        public async Task DeleteUser(String[] input)
         {
             if(input.Length > 1)
             {
-                User user = await userRepository.GetUserByName(input[1]);
+                User user = await _userRepository.GetUserByName(input[1]);
                 if (user != null)
                 {
                     Console.WriteLine("Enter Password:");
                     if(user.Password == Console.ReadLine())
                     {
-                        await userRepository.DeleteUser(user.ID);
+                        await _userRepository.DeleteUser(user.ID);
                     }
                     else
                     {
@@ -60,55 +70,55 @@ namespace learnCSharp
             {
                 Console.WriteLine("ENTER USER NAME");
                 string secondaryInput = Console.ReadLine();
-                User user = await userRepository.GetUserByName(secondaryInput);
+                User user = await _userRepository.GetUserByName(secondaryInput);
                 if(user != null)
                 {
-                    await userRepository.DeleteUser(user.ID);
+                    await _userRepository.DeleteUser(user.ID);
                 }
             }
             return;
         }
 
         
-        public async static Task RemoveTodo(ITodoRepository todoRepository, String[] input)
+        public async Task RemoveTodo(String[] input)
         {
             var listIndex = -1;
             var indexFound = false;
             if (input.Length > 1)
             {
-                await todoRepository.DeleteTodo(int.Parse(input[1]));
+                await _todoRepository.DeleteTodo(int.Parse(input[1]));
             }
             else
             {
                 Console.WriteLine("ENTER ID NUMBER OF TASK");
                 String secondaryInput = Console.ReadLine();
-                await todoRepository.DeleteTodo(int.Parse(secondaryInput));
+                await _todoRepository.DeleteTodo(int.Parse(secondaryInput));
             }
             return;
         }
 
 
-        public async static Task<User> ChangeUser(String[] input, IUserRepository userRepository)
+        public async Task ChangeUser(String[] input)
         {
             User user;
             String uName;
             if (input.Length > 1)
             {
                 uName = input[1];
-                user = await userRepository.GetUserByName(input[1]);
+                user = await _userRepository.GetUserByName(input[1]);
             }
             else
             {
                 Console.WriteLine("ENTER TASK OWNER");
                 uName = Console.ReadLine();
-                user = await userRepository.GetUserByName(uName);
+                user = await _userRepository.GetUserByName(uName);
             }
             if (user == null)
             {
                 user = new User() { Name = uName };
                 Console.WriteLine("New User Detected.\nPlease Enter Password for New User.");
                 user.Password = Console.ReadLine();
-                return await userRepository.NewUser(user);
+                _currentUserProvider.CurrentUser = await _userRepository.NewUser(user);
             }
             else
             {
@@ -116,7 +126,7 @@ namespace learnCSharp
                 if(user.Password == Console.ReadLine())
                 {
                     Console.WriteLine("accepted");
-                    return user;
+                    _currentUserProvider.CurrentUser = user;
                 }
                 else
                 {
@@ -130,28 +140,28 @@ namespace learnCSharp
                     {
                         input.Append<String>(Console.ReadLine());
                     }
-                    return await ChangeUser(input, userRepository);
+                    await ChangeUser(input);
                 }
             }
         }
 
 
-        public static Todo CreateTask(String[] input, User curUser)
+        public async Task CreateTask(String[] input)
         {
             Todo newTask;
             if (input.Length > 1)
             {
-                newTask = new Todo { Description = input[1], UserID = curUser.ID };
+                newTask = new Todo { Description = input[1], UserID = _currentUserProvider.CurrentUser.ID };
             }
             else
             {
-                newTask = new Todo { Description = "notset", UserID = curUser.ID };
+                newTask = new Todo { Description = "notset", UserID = _currentUserProvider.CurrentUser.ID };
             }
-            return newTask;
+            await _todoRepository.NewTodo(newTask);
         }
 
 
-        public async static Task<Todo> ChangeTask(ITodoRepository todoRepository, String[] input)
+        public async Task ChangeTask(String[] input)
         {
             Todo newTodo = new Todo();
             if (input.Length > 1)
@@ -159,7 +169,7 @@ namespace learnCSharp
                 String[] doubleParseIn = input[1].Split(',');
                 if (doubleParseIn.Length > 1)
                 {
-                    newTodo = await todoRepository.GetTodo(int.Parse(doubleParseIn[0]));
+                    newTodo = await _todoRepository.GetTodo(int.Parse(doubleParseIn[0]));
                     newTodo.Description = doubleParseIn[1];
                 }
             }
@@ -167,15 +177,15 @@ namespace learnCSharp
             {
                 Console.WriteLine("ENTER TASK ID NUMBER:");
                 String secondaryInput = Console.ReadLine();
-                newTodo = await todoRepository.GetTodo(int.Parse(secondaryInput));
+                newTodo = await _todoRepository.GetTodo(int.Parse(secondaryInput));
                 Console.WriteLine("ENTER NEW DESCRIPTION:");
                 newTodo.Description = Console.ReadLine();
             }
-            return newTodo;
+            await _todoRepository.UpdateTodo(newTodo);
         }
         
 
-        public async static Task<Todo> UpdateStatus(ITodoRepository todoRepository, String[] input)
+        public async Task UpdateStatus(String[] input)
         {
             Todo newTodo = new Todo();
             if (input.Length > 1)
@@ -183,7 +193,7 @@ namespace learnCSharp
                 String[] doubleParseIn = input[1].Split(',');
                 if (doubleParseIn.Length > 1)
                 {
-                    newTodo = await todoRepository.GetTodo(int.Parse(doubleParseIn[0]));
+                    newTodo = await _todoRepository.GetTodo(int.Parse(doubleParseIn[0]));
                     newTodo.Completed = bool.Parse(doubleParseIn[1]);
                 }
             }
@@ -191,29 +201,29 @@ namespace learnCSharp
             {
                 Console.WriteLine("ENTER ID NUMBER OF TASK");
                 String secondaryInput = Console.ReadLine();
-                newTodo = await todoRepository.GetTodo(int.Parse(secondaryInput));
+                newTodo = await _todoRepository.GetTodo(int.Parse(secondaryInput));
                 Console.WriteLine("ENTER STATUS(true or false):");
                 secondaryInput = Console.ReadLine();
                 newTodo.Completed = bool.Parse(secondaryInput);
             }
-            return newTodo;
+            await _todoRepository.UpdateTodo(newTodo);
         }
 
 
-        public static async Task PrintSpecific(ITodoRepository todoRepository, String[] input, IUserRepository userRepository)
+        public async Task PrintSpecific(String[] input)
         {
-            var allUsers = await userRepository.GetAllUsers();
+            var allUsers = await _userRepository.GetAllUsers();
             var userLookUp = allUsers.ToDictionary(user => user.ID, user => user.Name);
             if (input.Length > 1)
             {
-                var todo = await todoRepository.GetTodo(int.Parse(input[1]));
+                var todo = await _todoRepository.GetTodo(int.Parse(input[1]));
                 PrintToConsole(todo, userLookUp[todo.UserID]);
             }
             else
             {
                 Console.WriteLine("ENTER ID NUMBER OF TASK");
                 String secondaryInput = Console.ReadLine();
-                var todo = await todoRepository.GetTodo(int.Parse(secondaryInput));
+                var todo = await _todoRepository.GetTodo(int.Parse(secondaryInput));
                 PrintToConsole(todo, userLookUp[todo.UserID]);
             }
         }
